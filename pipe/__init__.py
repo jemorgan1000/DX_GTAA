@@ -5,4 +5,4 @@ This is the data preprocessing pipeline
 - it contains scripts to impute missing data
 
 """
-from load import *
+from .load import *
