@@ -6,3 +6,4 @@ This is the data preprocessing pipeline
 
 """
 from .load import *
+from .mlb_scrapping import *
