@@ -64,7 +64,8 @@ def get_duration_matrix():
     dframe = pd.DataFrame(
         [get_Team_Name(row[0]), get_Team_Name(row[1]), get_duration(row[0],row[1])] for index,row in df.iterrows()
     )
+    return dframe
 
 
 
-
+pprint(get_duration_matrix())
