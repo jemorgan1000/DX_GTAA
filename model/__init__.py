@@ -1,6 +1,7 @@
 
 from sklearn import linear_model
 from sklearn import svm
+from sklearn import ensemble
 
 class Models:
 
@@ -36,7 +37,15 @@ class Models:
         elastic.fit(self.X,self.y)
         return elastic
 
+    def fit_random_forest(self):
+        rf = ensemble.RandomForestRegressor()
+        rf.fit(self.X, self.y)
+        return rf
+
     def score(self, model, X, y):
         pass
 
+
+    def test(self, mod, Xtest, ytest):
+        pass
 

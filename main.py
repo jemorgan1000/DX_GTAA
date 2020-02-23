@@ -19,8 +19,6 @@ def main():
     team_url_csv = os.path.join(data_path,'mlb_url.csv')
     MLBScraper = mlb_scrapping.MLBScraper(syear, season, team_url_csv)
     games_df = MLBScraper()
-    print(games_df.dtypes)
-    print(games_df['streak_home'])
     preprocessor = preprocess.Preprocess(games_df)
     X,y = preprocessor.split_xy('attendance')
     X = preprocessor.normalize(X)
@@ -32,6 +30,8 @@ def main():
     print(svr.score(X,y))
     elastic = modeler.fit_elastic()
     print(elastic.score(X,y))
+    rf = modeler.fit_random_forest()
+    print(rf.score(X,y))
 
 if __name__ == '__main__':
     main()
