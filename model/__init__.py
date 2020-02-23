@@ -2,6 +2,7 @@
 from sklearn import linear_model
 from sklearn import svm
 from sklearn import ensemble
+from sklearn import metrics
 
 class Models:
 
@@ -38,14 +39,10 @@ class Models:
         return elastic
 
     def fit_random_forest(self):
-        rf = ensemble.RandomForestRegressor()
+        rf = ensemble.RandomForestRegressor(n_estimators=200,oob_score=True,criterion='mae')
         rf.fit(self.X, self.y)
         return rf
 
-    def score(self, model, X, y):
-        pass
-
-
     def test(self, mod, Xtest, ytest):
-        pass
+       return metrics.mean_squared_error(mod.predict(Xtest),ytest), metrics.r2_score(mod.predict(Xtest),ytest)
 
