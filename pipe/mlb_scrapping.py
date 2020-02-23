@@ -1,15 +1,8 @@
 import requests
-import lxml.html as lh
 import pandas as pd
 from bs4 import BeautifulSoup
 import numpy as np
-
-
-syear='2017' #set year of season
-season='2017-schedule-scores.shtml' #set season ending link
-team_url_csv="mlb_url.csv"
-
-
+import datetime
 
 class MLBScraper:
 
@@ -72,13 +65,13 @@ class MLBScraper:
         games_df = pd.DataFrame()
         team_abrv = self.get_abbrev()
         for u,w in zip(self.team_url_list, team_abrv):
-            dfatl= self.get_current_season_links(u,w,season) #
+            dfatl= self.get_current_season_links(u,w, self.season) #
             games_df = games_df.append(dfatl) #add new dataframe to empty one
         games_df= games_df[games_df[0] != None]
         games_df.columns = ['date','bx','team','home_away','opponent','win_loss','runs','runs_allowed','innings','record','rank','games_behind_raw','win_pitcher','loss_pitcher','save_pitcher','game_time','day_night_raw','attendance','streak_raw','schedule_comment','team_abbv']
         games_df['bx'].replace('', np.nan, inplace=True)
         games_df.dropna(subset=['bx'], inplace=True)
-        games_df.date = games_df.date + ' ' + syear
+        games_df.date = games_df.date + ' ' + self.years
         return games_df
 
     def get_home_dummies(self, games_df):
@@ -154,6 +147,11 @@ class MLBScraper:
 
 
     def get_games_behind(self, games_df):
+        """
+        
+        :param games_df:
+        :return:
+        """
         i = 0
         gb = []
         for i in range(0,len(games_df.games_behind_raw)):
@@ -204,6 +202,11 @@ class MLBScraper:
         return games_df
 
     def get_win_losses(self, games_df):
+        """
+        
+        :param games_df:
+        :return:
+        """
         games_df.insert(len(games_df.columns), 'wins', games_df.record.str.split('-').apply(lambda x: x[0]))
         games_df.insert(len(games_df.columns), 'loss', games_df.record.str.split('-').apply(lambda x: x[0]))
         games_df.drop(columns=['record'], axis=1, inplace=True)
@@ -231,7 +234,29 @@ class MLBScraper:
         temp.drop(columns=['home_team','away_team'],inplace=True)
         return temp
 
+    def get_day_of_week(self, games_df) :
+        day = []
+        dates = games_df['date']
+        i = 0
+        for i in range(0, len(games_df.date)):
+            day.append(datetime.datetime.strptime(dates[i].strftime('%Y-%m-%d'), '%Y-%m-%d').weekday())
+        games_df['day_of_week'] = day
+        return games_df
+
+    def get_day_of_week_dummies(self, games_df):
+        dow_dumy = pd.get_dummies(games_df['day_of_week'])
+        for col in dow_dumy.columns:
+            games_df[col] = dow_dumy[col]
+        games_df.drop(columns=['day_of_week'])
+        return games_df
+
+
+
     def __call__(self):
+        """
+
+        :return:
+        """
         games_df = self.get_raw_data()
         games_df = self.get_home_dummies(games_df)
         games_df = self.get_night_dummy(games_df)
@@ -246,6 +271,8 @@ class MLBScraper:
         games_df = self.clean_attendance(games_df)
         games_df = self.get_win_losses(games_df)
         games_df = self.level_df(games_df)
+        games_df = self.get_day_of_week(games_df)
+        games_df = self.get_day_of_week_dummies(games_df)
         return games_df
 
         
